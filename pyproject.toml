@@ -1,0 +1,11 @@
+[project]
+name = "mdtree"
+version = "0.1.0"
+description = "Output directory structure as Markdown code block"
+authors = [{name = "a-duty-rookie"}]
+readme = "README.md"
+license = {text = "MIT"}
+dependencies = ["click", "pathspec"]
+
+[project.scripts]
+mdtree = "mdtree.__main__:main"
