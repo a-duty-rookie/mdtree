@@ -2,6 +2,8 @@
 
 **See below for the English version.**
 
+[Source code available on GitHub! 👥](https://github.com/a-duty-rookie/mdtree)
+
 ---
 
 ## 🔄 これは何？
@@ -91,6 +93,10 @@ This project is licensed under the terms of the MIT license.
 
 ---
 
+[Source code available on GitHub! 👥](https://github.com/a-duty-rookie/mdtree)
+
+---
+
 ## 🔄 What is this?
 
 `mdtree` is a CLI tool that outputs the structure of a specified directory as a text-based Markdown file.
@@ -104,7 +110,7 @@ It's perfect for situations where you want to quickly show your directory struct
 ### Installation
 
 ```bash
-pip install mdtree
+pip install mdtree-py
 ```
 
 ### Example command
