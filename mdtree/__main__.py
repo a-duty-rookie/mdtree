@@ -1,8 +1,7 @@
-# import os
 from pathlib import Path
 from typing import Union
 
-# import click
+import pathspec
 
 
 def validate_and_convert_path(s: Union[str, Path]):
@@ -14,29 +13,63 @@ def validate_and_convert_path(s: Union[str, Path]):
     return p
 
 
-def build_structure_tree(root_path, max_depth=None):
+def check_ignore_child(child: Path, spec: pathspec.pathspec.PathSpec):
+    # 除外対象のspecに対して判定->除外対象ならTrueを返す
+    str_child = str(child) + "/" if child.is_dir() else str(child)
+    return spec.match_file(str_child)
 
+
+def build_structure_tree(
+    root_path: Path,
+    max_depth=None,
+    ignore_list: list = [".git"],
+    add_gitignore_targets: bool = True,
+):
+
+    # tree表示のための記号準備
     ends = ["├── ", "└── "]
     extentions = ["|    ", "    "]
-    res_list = [str(root_path)]
+    # rootディレクトリを格納した結果収集リスト
+    res_list = [root_path.resolve().name]
+    # ignore_listにgitignoreを反映
+    if add_gitignore_targets:
+        gitignore_path = Path(".gitignore")
+        if gitignore_path.exists():
+            for target in gitignore_path.read_text().splitlines():
+                ignore_list.append(target)
+    # pathspecインスタンス作成
+    ignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", ignore_list)
 
     def search_directories(path: Path, prefix="", depth=0):
+        # 再帰的な内部関数
+        # 探索深さを進める。depthはroot(0)スタートなので、最初にまず1歩深みへ進む。
         depth = depth + 1
+        # 設定した最深を超えたら再帰関数を終了する
         if max_depth is not None and depth > max_depth:
             return
+        # 今いる深さにいる子パスを抽出
         children = sorted(list(path.glob("*")))
         for i, child in enumerate(children):
-            # その階層の探索終了フラグ
-            is_last = i + 1 == len(children)
-            # その階層の探索が終了したらtreeを閉じる
-            end = ends[int(is_last)]
-            # その階層の探索が終了したら次からパイプを描かない
-            extention = extentions[int(is_last)]
-            res_list.append(prefix + end + child.name)
-            if child.is_dir():
-                search_directories(child, prefix + extention, depth)
+            # 子パス単位にignore_listをチェック
+            if check_ignore_child(child, ignore_spec):
+                # ignore_listに該当したら以降を飛ばす
+                continue
+            else:
+                # その階層の探索終了フラグを設定
+                is_last = i + 1 == len(children)
+                # 今のchildでその階層の探索が終了する場合はtreeを閉じる記号
+                end = ends[int(is_last)]
+                # 今のchildの行をlistに追加
+                res_list.append(prefix + end + child.name)
+                # 今のchildでその階層の探索が終了するかどうかで、さらに深掘りするときに|を描くか決める
+                extention = extentions[int(is_last)]
+                if child.is_dir():
+                    # 子パスがディレクトリの場合はさらに深く潜る
+                    search_directories(child, prefix + extention, depth)
 
+    # 再帰関数をrootから実行する
     search_directories(root_path)
+    # 改行区切りで出力
     return "\n".join(res_list)
 
 
@@ -44,16 +77,5 @@ if __name__ == "__main__":
     s = "."
     p = validate_and_convert_path(s)
 
-    import pathspec
-
-    gitignore_path = p / ".gitignore"
-    ignore_list = gitignore_path.read_text().splitlines()
-    spec = pathspec.PathSpec.from_lines("gitwildmatch", ignore_list)
-    for path in p.glob("*"):
-        if not spec.match_file(path):
-            print(str(path))
-    # ignore_text =
-    # spec =PathSpec().from_lines()
-
-    # res = build_structure_tree(p, max_depth=2)
-    # print(res)
+    res = build_structure_tree(p, max_depth=2)
+    print(res)
