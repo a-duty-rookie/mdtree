@@ -37,7 +37,7 @@ def build_structure_tree(
         ignore_list = list()
     # ignore_listにgitignoreを反映
     if apply_gitignore:
-        gitignore_path = Path(".gitignore")
+        gitignore_path = root_path / ".gitignore"
         if gitignore_path.exists():
             for target in gitignore_path.read_text().splitlines():
                 ignore_list.append(target)
@@ -84,5 +84,5 @@ if __name__ == "__main__":
     s = "."
     p = validate_and_convert_path(s)
 
-    res = build_structure_tree(p, max_depth=2)
+    res = build_structure_tree(p)
     print(res)

@@ -3,7 +3,7 @@ from pathlib import Path
 import click
 import pyperclip  # type: ignore
 
-from mdtree import build_structure_tree, validate_and_convert_path
+from mdtree.treebuilder import build_structure_tree, validate_and_convert_path
 
 
 @click.command()
@@ -22,20 +22,17 @@ from mdtree import build_structure_tree, validate_and_convert_path
     help="除外したいパターン（gitignoreと同じ記法,複数指定OK）",
 )
 @click.option(
-    "--apply-gitignore",
-    is_flag=True,
+    "--apply-gitignore/--no-apply-gitignore",
     default=True,
     help="gitignoreと同じ除外を適用。既定で適用。",
 )
 @click.option(
-    "--exclude-git",
-    is_flag=True,
+    "--exclude-git/--no-exclude-git",
     default=True,
     help=".gitフォルダを除外。既定で適用。",
 )
 @click.option(
-    "--clipboard",
-    is_flag=True,
+    "--clipboard/--no-clipboard",
     default=True,
     help="clipboardへコピー。既定で適用",
 )
@@ -58,7 +55,7 @@ def main(
     res = build_structure_tree(
         root_path=p,
         max_depth=max_depth,
-        ignore_list=ignore_list,
+        ignore_list=list(ignore_list),
         apply_gitignore=apply_gitignore,
         exclude_git=exclude_git,
     )
@@ -71,3 +68,7 @@ def main(
         sp.touch()
         text = "# structure_tree\n\n" + "``` plaintext\n" + res + "```"
         sp.write_text(text)
+
+
+if __name__ == "__main__":
+    main()
