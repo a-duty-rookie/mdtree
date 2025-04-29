@@ -17,7 +17,7 @@
 ### インストール
 
 ```bash
-pip install mdtree
+pip install mdtree-py
 ```
 
 ### コマンド例
