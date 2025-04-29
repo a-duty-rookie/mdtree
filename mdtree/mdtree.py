@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import pathspec
 
@@ -21,9 +21,10 @@ def check_ignore_child(child: Path, spec: pathspec.pathspec.PathSpec):
 
 def build_structure_tree(
     root_path: Path,
-    max_depth=None,
-    ignore_list: list = [".git"],
-    add_gitignore_targets: bool = True,
+    max_depth: Optional[int] = None,
+    ignore_list: Optional[list] = None,
+    apply_gitignore: bool = True,
+    exclude_git: bool = True,
 ):
 
     # tree表示のための記号準備
@@ -31,12 +32,18 @@ def build_structure_tree(
     extentions = ["|    ", "    "]
     # rootディレクトリを格納した結果収集リスト
     res_list = [root_path.resolve().name]
+    # ignoreリスト定義
+    if ignore_list is None:
+        ignore_list = list()
     # ignore_listにgitignoreを反映
-    if add_gitignore_targets:
+    if apply_gitignore:
         gitignore_path = Path(".gitignore")
         if gitignore_path.exists():
             for target in gitignore_path.read_text().splitlines():
                 ignore_list.append(target)
+    # gitファイル除外
+    if exclude_git:
+        ignore_list.append(".git")
     # pathspecインスタンス作成
     ignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", ignore_list)
 
