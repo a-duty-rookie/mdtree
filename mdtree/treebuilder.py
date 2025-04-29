@@ -56,23 +56,22 @@ def build_structure_tree(
             return
         # 今いる深さにいる子パスを抽出
         children = sorted(list(path.glob("*")))
+        # ignore判定のものを除外する
+        children = [
+            child for child in children if not check_ignore_child(child, ignore_spec)
+        ]
         for i, child in enumerate(children):
-            # 子パス単位にignore_listをチェック
-            if check_ignore_child(child, ignore_spec):
-                # ignore_listに該当したら以降を飛ばす
-                continue
-            else:
-                # その階層の探索終了フラグを設定
-                is_last = i + 1 == len(children)
-                # 今のchildでその階層の探索が終了する場合はtreeを閉じる記号
-                end = ends[int(is_last)]
-                # 今のchildの行をlistに追加
-                res_list.append(prefix + end + child.name)
-                # 今のchildでその階層の探索が終了するかどうかで、さらに深掘りするときに|を描くか決める
-                extention = extentions[int(is_last)]
-                if child.is_dir():
-                    # 子パスがディレクトリの場合はさらに深く潜る
-                    search_directories(child, prefix + extention, depth)
+            # その階層の探索終了フラグを設定
+            is_last = i + 1 == len(children)
+            # 今のchildでその階層の探索が終了する場合はtreeを閉じる記号
+            end = ends[int(is_last)]
+            # 今のchildの行をlistに追加
+            res_list.append(prefix + end + child.name)
+            # 今のchildでその階層の探索が終了するかどうかで、さらに深掘りするときに|を描くか決める
+            extention = extentions[int(is_last)]
+            if child.is_dir():
+                # 子パスがディレクトリの場合はさらに深く潜る
+                search_directories(child, prefix + extention, depth)
 
     # 再帰関数をrootから実行する
     search_directories(root_path)
