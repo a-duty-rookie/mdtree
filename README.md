@@ -33,7 +33,7 @@ mdtree
 他のオプション例：
 
 ```bash
-mdtree --path ./your_project --max-depth 2 --ignore-list node_modules .venv --no-clipboard --savepath structure.md
+mdtree --path ./your_project --max-depth 2 --ignore-list ./mypy_cache --ignore-list .venv --no-clipboard --savepath structure.md
 ```
 
 ### 主なオプション
@@ -124,7 +124,7 @@ mdtree
 Other options:
 
 ```bash
-mdtree --path ./your_project --max-depth 2 --ignore-list node_modules .venv --no-clipboard --savepath structure.md
+mdtree --path ./your_project --max-depth 2 --ignore-list .mypy_cache --ignore-list .venv --no-clipboard --savepath structure.md
 ```
 
 ### Main options
