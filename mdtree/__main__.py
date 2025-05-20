@@ -67,7 +67,7 @@ def main(
         sp.parent.mkdir(exist_ok=True, parents=True)
         sp.touch()
         text = "# structure_tree\n\n" + "``` plaintext\n" + res + "\n```\n"
-        sp.write_text(text)
+        sp.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":
