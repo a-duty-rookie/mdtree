@@ -39,7 +39,7 @@ from mdtree.treebuilder import build_structure_tree, validate_and_convert_path
 @click.option(
     "--savepath",
     type=click.Path(exists=False, dir_okay=False),
-    default="tree.md",
+    default=None,
     help="textで書き出し",
 )
 def main(
@@ -67,7 +67,7 @@ def main(
         sp.parent.mkdir(exist_ok=True, parents=True)
         sp.touch()
         text = "# structure_tree\n\n" + "``` plaintext\n" + res + "\n```\n"
-        sp.write_text(text)
+        sp.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":
