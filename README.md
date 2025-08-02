@@ -44,7 +44,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list ./mypy_cache --ignore-l
 - `--apply-gitignore / --no-apply-gitignore` : `.gitignore`設定に基づく除外を適用/適用しない（default: 適用する）
 - `--exclude-git / --no-exclude-git` : `.git`ディレクトリを除外する/しない（default: 除外する）
 - `--clipboard / --no-clipboard` : 出力をクリップボードにコピーする/しない（default: コピーする）
-- `--savepath [FILE]` : Markdownファイルに書き出すパスを指定（default: `tree.md`）
+- `--savepath [FILE]` : Markdownファイルに書き出すパスを指定（encoding: utf-8, default: `None` 保存しない）
 - `--help` : 使い方ヘルプを表示
 
 ---
@@ -135,7 +135,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list .mypy_cache --ignore-li
 - `--apply-gitignore / --no-apply-gitignore` : Apply or ignore `.gitignore` settings (default: apply)
 - `--exclude-git / --no-exclude-git` : Exclude or include the `.git` directory (default: exclude)
 - `--clipboard / --no-clipboard` : Copy output to clipboard or not (default: copy)
-- `--savepath [FILE]` : Path to save output as a Markdown file (default: `tree.md`)
+- `--savepath [FILE]` : Path to save output as a Markdown file (encoding: utf-8, default: `None`)
 - `--help` : Display help
 
 ---
