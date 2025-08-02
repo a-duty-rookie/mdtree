@@ -63,7 +63,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list ./mypy_cache --ignore-l
 例えばこのリポジトリのルートで以下のように実行すると・・・
 
 ``` bash
-mdtree --ignore-list .DS_Store --savepath 好きなパス.md
+mdtree --savepath 好きなパス.md
 ```
 
 こんな感じのコードブロックを持ったmdファイル`好きなパス.md`が生成されます。
@@ -81,6 +81,7 @@ mdtree
 |    |    ├── test_cli.py
 |    |    └── test_structure.py
 |    └── treebuilder.py
+├── mdtree_output.md
 ├── pyproject.toml
 └── requirements.txt
 ```
@@ -154,7 +155,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list .mypy_cache --ignore-li
 For example, running the following command at the root of this repository:
 
 ```bash
-mdtree --ignore-list .DS_Store --savepath path-you-like.md
+mdtree --savepath path-you-like.md
 ```
 
 Generates a Markdown file `path-you-like.md` containing a code block like this, and also copies the block to your clipboard:
@@ -171,6 +172,7 @@ mdtree
 |    |    ├── test_cli.py
 |    |    └── test_structure.py
 |    └── treebuilder.py
+├── mdtree_output.md
 ├── pyproject.toml
 └── requirements.txt
 ```
