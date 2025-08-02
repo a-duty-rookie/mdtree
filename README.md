@@ -44,7 +44,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list ./mypy_cache --ignore-l
 - `--apply-gitignore / --no-apply-gitignore` : `.gitignore`設定に基づく除外を適用/適用しない（default: 適用する）
 - `--exclude-git / --no-exclude-git` : `.git`ディレクトリを除外する/しない（default: 除外する）
 - `--clipboard / --no-clipboard` : 出力をクリップボードにコピーする/しない（default: コピーする）
-- `--savepath [FILE]` : Markdownファイルに書き出すパスを指定（default: `tree.md`）
+- `--savepath [FILE]` : Markdownファイルに書き出すパスを指定（encoding: utf-8, default: `None` 保存しない）
 - `--help` : 使い方ヘルプを表示
 
 ---
@@ -63,10 +63,10 @@ mdtree --path ./your_project --max-depth 2 --ignore-list ./mypy_cache --ignore-l
 例えばこのリポジトリのルートで以下のように実行すると・・・
 
 ``` bash
-mdtree --ignore-list .DS_Store
+mdtree --savepath 好きなパス.md
 ```
 
-こんな感じのコードブロックを持ったmdファイルが`mdtree/tree.md`に生成されます。
+こんな感じのコードブロックを持ったmdファイル`好きなパス.md`が生成されます。
 また、コードブロック内のテキストがクリップボードに追加されます。
 
 ``` plaintext
@@ -81,6 +81,7 @@ mdtree
 |    |    ├── test_cli.py
 |    |    └── test_structure.py
 |    └── treebuilder.py
+├── mdtree_output.md
 ├── pyproject.toml
 └── requirements.txt
 ```
@@ -135,7 +136,7 @@ mdtree --path ./your_project --max-depth 2 --ignore-list .mypy_cache --ignore-li
 - `--apply-gitignore / --no-apply-gitignore` : Apply or ignore `.gitignore` settings (default: apply)
 - `--exclude-git / --no-exclude-git` : Exclude or include the `.git` directory (default: exclude)
 - `--clipboard / --no-clipboard` : Copy output to clipboard or not (default: copy)
-- `--savepath [FILE]` : Path to save output as a Markdown file (default: `tree.md`)
+- `--savepath [FILE]` : Path to save output as a Markdown file (encoding: utf-8, default: `None`)
 - `--help` : Display help
 
 ---
@@ -154,10 +155,10 @@ mdtree --path ./your_project --max-depth 2 --ignore-list .mypy_cache --ignore-li
 For example, running the following command at the root of this repository:
 
 ```bash
-mdtree --ignore-list .DS_Store
+mdtree --savepath path-you-like.md
 ```
 
-Generates a Markdown file `mdtree/tree.md` containing a code block like this, and also copies the block to your clipboard:
+Generates a Markdown file `path-you-like.md` containing a code block like this, and also copies the block to your clipboard:
 
 ```plaintext
 mdtree
@@ -171,6 +172,7 @@ mdtree
 |    |    ├── test_cli.py
 |    |    └── test_structure.py
 |    └── treebuilder.py
+├── mdtree_output.md
 ├── pyproject.toml
 └── requirements.txt
 ```

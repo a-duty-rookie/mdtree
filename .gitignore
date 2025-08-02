@@ -173,3 +173,12 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 upload.sh
+
+# macOS固有ファイル
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# たまにできるSpotlight系
+.Spotlight-V100
+.Trashes
