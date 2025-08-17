@@ -26,10 +26,9 @@ def build_structure_tree(
     apply_gitignore: bool = True,
     exclude_git: bool = True,
 ):
-
     # tree表示のための記号準備
     ends = ["├── ", "└── "]
-    extentions = ["|    ", "    "]
+    extentions = ["│    ", "    "]
     # rootディレクトリを格納した結果収集リスト
     res_list = [root_path.resolve().name]
     # ignoreリスト定義
