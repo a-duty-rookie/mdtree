@@ -1,14 +1,22 @@
 [project]
-name = "mdtree_py"
-version = "0.1.7"
+name = "mdtree-py"
+version = "0.1.8"
 description = "Output directory structure as Markdown code block"
-authors = [{ name = "a-duty-rookie" }]
-readme = "README.md"
+authors = [{ name = "a-duty-rookie", email = "yutaro1127@gmail.com" }]
 license = { text = "MIT" }
-dependencies = ["click>=8.1.8", "pathspec>=0.12.1", "pyperclip>=1.9.0"]
-
-[project.optional-dependencies]
-dev = ["pytest>=8.3.5"]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["click (>=8.1.8)", "pathspec (>=0.12.1)", "pyperclip (>=1.9.0)"]
 
 [project.scripts]
 mdtree = "mdtree.__main__:main"
+
+[tool.poetry]
+packages = [{ include = "mdtree" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
