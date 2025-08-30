@@ -19,11 +19,20 @@ def _read_gitignore_lines(root: Path) -> list[str]:
     gi = root / ".gitignore"
     if not gi.exists():
         return []
-    out = []
+    out: list[str] = []
     for raw in gi.read_text(encoding="utf-8").splitlines():
+        # 1) 両端の空白を除去（← これが超重要。行頭インデントを殺す）
         line = raw.strip()
+        # 2) 空行 / 先頭コメントはスキップ
         if not line or line.startswith("#"):
             continue
+        # 3) インラインコメントを除去:
+        #    「半角スペースに続く #」以降はコメントとみなす（'foo#bar' は壊さない）
+        idx = line.find(" #")
+        if idx != -1:
+            line = line[:idx].rstrip()
+            if not line:
+                continue
         out.append(line)
     return out
 
@@ -82,8 +91,6 @@ def build_structure_tree(
     stack: list[tuple[Path, int]] = [(root_path, 0)]
     while stack:
         cur, depth = stack.pop()
-        if max_depth is not None and depth >= max_depth:
-            continue
         for ch in sorted(cur.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
             all_paths.append(ch)
             if ch.is_dir():
@@ -97,23 +104,36 @@ def build_structure_tree(
         state_ignore = False
         hits = []
         rel = p.relative_to(root_path).as_posix()
+        # 祖先ディレクトリ（自身がdirなら自身も含む）の相対POSIXパス一覧
+        ancestors = []
+        cur = p if p.is_dir() else p.parent
+        while cur and cur != root_path:
+            ancestors.append(cur.relative_to(root_path).as_posix())
+            cur = cur.parent
         for is_neg, spec, _pat in rules:
             core = _pat[1:] if _pat.startswith("!") else _pat
 
             # ---- 末尾 `/` を特別扱い ----
             if core.endswith("/"):
-                dir_pat = core.rstrip("/")
+                # 非否定: パターンにマッチする任意の祖先ディレクトリ（自身がdirならそれ自身も）があれば
+                # その配下すべてを除外とする。ワイルドカードを含むので spec を使って照合。
                 if not is_neg:
-                    # 非否定: ディレクトリ本体 と その配下すべて を除外
-                    if rel == dir_pat or rel.startswith(dir_pat + "/"):
+                    matched_dir = False
+                    # 自身がdirなら自身も候補に入れる
+                    dir_candidates = ([rel] if p.is_dir() else []) + ancestors
+                    for d in dir_candidates:
+                        # 'xxx/' で照合（gitwildmatchは末尾スラ付きディレクトリを期待する）
+                        if d and spec.match_file(d.rstrip("/") + "/"):
+                            matched_dir = True
+                            break
+                    if matched_dir:
                         state_ignore = True
-                        hits.append((_pat, rel, "EXCLUDE (dir and descendants)"))
+                        hits.append((_pat, rel, "EXCLUDE (dir pattern & descendants)"))
                 else:
-                    # 否定: ディレクトリ本体だけを再許可（中身は別途 ! で）
-                    if p.is_dir() and rel == dir_pat:
+                    # 否定: ディレクトリ本体のみ再許可（配下は別途 ! 指定）
+                    if p.is_dir() and spec.match_file(rel.rstrip("/") + "/"):
                         state_ignore = False
                         hits.append((_pat, rel, "INCLUDE (unignore dir)"))
-                # 末尾 `/` ルールはここで完結（spec は使わない）
                 continue
 
             # ---- それ以外は pathspec の判定に任せる ----
@@ -147,6 +167,45 @@ def build_structure_tree(
         while cur != root_path:
             cur = cur.parent
             included.add(cur)
+
+    # 5.5) “空”ディレクトリ枝落とし（最終版）
+    # 子孫に included が1つでもあれば残す。無い場合は「直下に実ファイルがあれば残す」。
+    # 直下に“除外されたディレクトリ”しか無いときだけ落とす。
+    children_by_parent: dict[Path, list[Path]] = {}
+    for p in all_paths:
+        if p == root_path:
+            continue
+        children_by_parent.setdefault(p.parent, []).append(p)
+
+    def has_included_descendant(dir_path: Path) -> bool:
+        for q in included:
+            if q == dir_path:
+                continue
+            try:
+                q.relative_to(dir_path)
+                return True
+            except Exception:
+                pass
+        return False
+
+    pruned = set()
+    for p in included:
+        if p == root_path or not p.is_dir():
+            pruned.add(p)
+            continue
+        if has_included_descendant(p):
+            pruned.add(p)
+            continue
+        # included 子孫が無い → 直下に実ファイルがあるなら残す
+        has_real_file_child = any(ch.is_file() for ch in children_by_parent.get(p, []))
+        if has_real_file_child:
+            pruned.add(p)
+            continue
+        # 直下に実ファイルが無く、直下に除外されたディレクトリがある（or 何も無い）→ 落とす
+        # （直下のディレクトリが included に居ない = 除外されている とみなす）
+        # 直下に何も無い（本当に空）場合も落とす
+        pruned = pruned  # no-op; p は追加しない（= 落とす）
+    included = pruned
 
     # 6) ツリー描画
     def list_children(path: Path) -> list[Path]:
